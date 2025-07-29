@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "weaponthrow",
+  "version": "${version}",
+
+  "name": "WeaponThrow",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "All-Rights-Reserved",
+  "icon": "assets/weaponthrow/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": ["vergisst.minecraftmod.weaponthrow.client.WeaponThrowDataGenerator"],
+    "client": ["vergisst.minecraftmod.weaponthrow.client.WeaponThrowClient"],
+    "main": ["vergisst.minecraftmod.weaponthrow.WeaponThrow"]
+  },
+
+  "mixins": [
+    "weaponthrow.mixins.json"
+    ,{
+      "config": "weaponthrow.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
