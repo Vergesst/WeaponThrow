@@ -15,7 +15,8 @@
   "entrypoints": {
     "fabric-datagen": ["vergisst.minecraftmod.weaponthrow.client.WeaponThrowDataGenerator"],
     "client": ["vergisst.minecraftmod.weaponthrow.client.WeaponThrowClient"],
-    "main": ["vergisst.minecraftmod.weaponthrow.WeaponThrow"]
+    "main": ["vergisst.minecraftmod.weaponthrow.WeaponThrow"],
+    "modmenu": ["vergisst.minecraftmod.weaponthrow.client.ModMenuIntegration"]
   },
 
   "mixins": [
