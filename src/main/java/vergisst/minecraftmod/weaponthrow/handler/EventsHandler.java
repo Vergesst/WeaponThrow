@@ -18,6 +18,8 @@ import vergisst.minecraftmod.weaponthrow.events.OnStartPlayerTick;
 import vergisst.minecraftmod.weaponthrow.packets.SPacketThrow;
 import vergisst.minecraftmod.weaponthrow.packets.State;
 
+import java.util.HashMap;
+
 public class EventsHandler {
     public static void registerEvents(){
         OnStartPlayerTick.EVENT.register((player)->{

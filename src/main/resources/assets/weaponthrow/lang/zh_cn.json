@@ -14,10 +14,10 @@
 	"weaponthrow.pmmo.requirementLoyalty": "使用忠诚需要 %d 战斗等级",
 
 	//Tetra Enchantment Integration
-	"tetra.improvement.enchantment/weaponthrow_throw.name": "Throw",
+	"tetra.improvement.enchantment/weaponthrow_throw.name": "重掷",
 	"tetra.improvement.enchantment/weaponthrow_throw.description": "增加投掷物造成的伤害",
-	"tetra.improvement.destabilized/weaponthrow_throw.name": "Destabilized: Throw",
-	"tetra.improvement.destabilized/weaponthrow_throw.description": "Reduces the effect of the Throw enchantment",
+	"tetra.improvement.destabilized/weaponthrow_throw.name": "禁用： 重掷",
+	"tetra.improvement.destabilized/weaponthrow_throw.description": "降低‘重掷’附魔造成的影响",
 	"tetra.improvement.enchantment/weaponthrow_groundededge.name": "Grounded Edge",
 	"tetra.improvement.enchantment/weaponthrow_groundededge.description": "Apply weakness in area",
 	"tetra.improvement.destabilized/weaponthrow_groundededge.name": "Destabilized: Grounded Edge",

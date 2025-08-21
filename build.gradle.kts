@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.invoke
 
 plugins {
-    id("fabric-loom") version "1.10.1"
+    id("fabric-loom") version "1.4.1"
     id("maven-publish")
 }
 
@@ -41,12 +41,6 @@ loom {
         }
     }
 }
-
-//fabricApi {
-//    configureDataGeneration {
-//        client = true
-//    }
-//}
 
 // repo sources
 repositories {
