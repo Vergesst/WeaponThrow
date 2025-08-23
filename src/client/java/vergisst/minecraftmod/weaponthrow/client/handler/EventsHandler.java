@@ -1,20 +1,10 @@
 package vergisst.minecraftmod.weaponthrow.client.handler;
 
-import com.google.common.collect.Multimap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.attribute.EntityAttribute;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
@@ -71,8 +61,6 @@ public class EventsHandler {
                 float progress = MathHelper.clamp(preProgress, 0.F, 1.0F);
 
                 matrices.translate(0.0D, 0.0F, progress * 0.50F);
-//				matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(progress * 10.0F));
-//				matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(progress * 40.0F));
                 matrices.multiply(new Quaternionf().fromAxisAngleDeg(POSITIVE_Z, progress * 10.0f));
                 matrices.multiply(new Quaternionf().fromAxisAngleDeg(POSITIVE_X, progress * 10.0f));
             }
@@ -93,18 +81,15 @@ public class EventsHandler {
         });
 
         OnApplySlow.EVENT.register((player)->{
-            PlayerThrowData cap = ((IPlayerEntityMixin)player).weaponThrow$getThrowPower();
+            var cap = ((IPlayerEntityMixin)player).weaponThrow$getThrowPower();
             return cap.getAction().equals(State.DURING);
         });
 
         OnFOVUpdate.EVENT.register((player, amount)->{
 
-            PlayerThrowData cap = ((IPlayerEntityMixin)player).weaponThrow$getThrowPower();
-
+            var cap = ((IPlayerEntityMixin)player).weaponThrow$getThrowPower();
             int maxChargeTime = cap.MAX_CHARGE;
-
             int chargeTime = cap.getChargeTime();
-
             boolean isCharging = cap.getAction().equals(State.DURING);
             float f = amount;
 

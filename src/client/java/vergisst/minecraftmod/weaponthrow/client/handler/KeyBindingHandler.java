@@ -11,8 +11,5 @@ import org.lwjgl.glfw.GLFW;
 public class KeyBindingHandler {
     public static final KeyBinding KEYBINDING = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.weaponthrow", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, KeyBinding.GAMEPLAY_CATEGORY));
 
-    public static void registerKeyBindings() {
-
-
-    }
+    public static void registerKeyBindings() {}
 }

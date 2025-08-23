@@ -3,6 +3,7 @@ package vergisst.minecraftmod.weaponthrow.entity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvironmentInterface;
+
 import net.minecraft.block.*;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -39,7 +40,9 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
 import org.jetbrains.annotations.Nullable;
+
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry;
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler;
 import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry;
@@ -225,14 +228,14 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                 return;
             }
 
-            if (entity instanceof LivingEntity livingentity1) {
+            if (entity instanceof LivingEntity livingEntity1) {
 
 
                 int contusionWorld = ConfigRegistry.COMMON.get().enchantments.enableConccusion ? EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, this.getItemStack()) : 0;
 
                 if (contusionWorld > 0) {
-                    livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5));
-                    livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 20*5*contusionWorld, 3));
+                    livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5));
+                    livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 20*5*contusionWorld, 3));
                 }
 
                 int fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, this.getItemStack());
@@ -252,28 +255,34 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                 }
 
                 if (entity1 instanceof LivingEntity) {
-                    EnchantmentHelper.onUserDamaged(livingentity1, entity1);
-                    EnchantmentHelper.onTargetDamaged((LivingEntity)entity1, livingentity1);
+                    EnchantmentHelper.onUserDamaged(livingEntity1, entity1);
+                    EnchantmentHelper.onTargetDamaged((LivingEntity)entity1, livingEntity1);
                 }
 
-                this.onHit(livingentity1);
+                this.onHit(livingEntity1);
 
                 if(this.getItemStack().getItem() instanceof BlockItem) {
-                    Block blockItem = Block.getBlockFromItem(this.getItemStack().getItem());
-                    if(blockItem instanceof SandBlock) {
-                        if(livingentity1.getRandom().nextInt(10) == 0) livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60, 3));
-                    }
-                    else if (blockItem instanceof TorchBlock){
-                        if(livingentity1.getRandom().nextInt(5) == 0) livingentity1.setOnFireFor(1);
-                    }
-                    else if (blockItem instanceof AnvilBlock){
-                        livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 60, 3));
-                        livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5));
+                    var blockItem = Block.getBlockFromItem(this.getItemStack().getItem());
+                    switch (blockItem) {
+                        case SandBlock sandBlock -> {
+                            if (livingEntity1.getRandom().nextInt(10) == 0)
+                                livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60, 3));
+                        }
+                        case TorchBlock torchBlock -> {
+                            if (livingEntity1.getRandom().nextInt(5) == 0)
+                                // Fire Aspect
+                                livingEntity1.setOnFireFor(fireTime);
+                        }
+                        case AnvilBlock anvilBlock -> {
+                            livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 60, 3));
+                            livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 3));
+                        }
+                        default -> {}
                     }
                 }else {
                     Item itemThrowed = this.getItemStack().getItem();
                     if(itemThrowed.equals(Items.BLAZE_ROD) || itemThrowed.equals(Items.BLAZE_POWDER)) {
-                        livingentity1.setOnFireFor(1);
+                        livingEntity1.setOnFireFor(1);
                     }
                 }
             }
