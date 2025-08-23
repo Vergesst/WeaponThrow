@@ -3,6 +3,7 @@ package vergisst.minecraftmod.weaponthrow.entity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.EnvironmentInterface;
+
 import net.minecraft.block.*;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
@@ -39,7 +40,9 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
 import org.jetbrains.annotations.Nullable;
+
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry;
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler;
 import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry;
@@ -153,6 +156,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
         if (i > 0 && (this.dealtDamage || this.isNoClip()) && entity != null) {
 
             if (!this.shouldReturnToThrower()) {
+                // reminder -- check for twice
                 if (!this.getWorld().isClient && this.pickupType == PickupPermission.ALLOWED) {
                     this.dropStack(this.getItemStack(), 0.1F);
                 }
@@ -282,6 +286,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                     }
                 }
             }
+
 
         }
 
