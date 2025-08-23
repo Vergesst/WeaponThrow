@@ -17,7 +17,9 @@ public class PacketHandler {
 
     @Environment(EnvType.CLIENT)
     public static void register() {
-        ClientPlayNetworking.registerGlobalReceiver(PacketIdentifiers.SPACKET_THROW, (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(
+                PacketIdentifiers.SPACKET_THROW,
+                (client, handler, buf, responseSender) -> {
             UUID uuid = buf.readUuid();
             int maxChargeTime = buf.readVarInt();
             boolean isCharging = buf.readBoolean();

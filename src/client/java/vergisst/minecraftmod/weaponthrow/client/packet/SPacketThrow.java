@@ -2,7 +2,6 @@ package vergisst.minecraftmod.weaponthrow.client.packet;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import vergisst.minecraftmod.weaponthrow.client.handler.EventsHandler;
-import vergisst.minecraftmod.weaponthrow.client.handler.PacketHandler;
 import vergisst.minecraftmod.weaponthrow.packets.BasePacket;
 import vergisst.minecraftmod.weaponthrow.packets.PacketIdentifiers;
 

@@ -11,7 +11,6 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import vergisst.minecraftmod.weaponthrow.client.handler.PacketHandler;
 import vergisst.minecraftmod.weaponthrow.packets.PacketIdentifiers;
 
 import java.util.UUID;
@@ -128,7 +127,7 @@ public class EntitySpawnPacket {
                 e.setYaw(yaw);
                 e.setId(entityId);
                 e.setUuid(uuid);
-                MinecraftClient.getInstance().world.addEntity(entityId, e);
+                MinecraftClient.getInstance().world.addEntity(e);
             });
         });
     }

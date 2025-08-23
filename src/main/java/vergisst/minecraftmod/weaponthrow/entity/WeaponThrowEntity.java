@@ -153,7 +153,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
         if (i > 0 && (this.dealtDamage || this.isNoClip()) && entity != null) {
 
             if (!this.shouldReturnToThrower()) {
-                if (!this.getWorld().isClient && this.pickupType == PersistentProjectileEntity.PickupPermission.ALLOWED) {
+                if (!this.getWorld().isClient && this.pickupType == PickupPermission.ALLOWED) {
                     this.dropStack(this.getItemStack(), 0.1F);
                 }
 
@@ -225,14 +225,14 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                 return;
             }
 
-            if (entity instanceof LivingEntity livingentity1) {
+            if (entity instanceof LivingEntity livingEntity1) {
 
 
                 int contusionWorld = ConfigRegistry.COMMON.get().enchantments.enableConccusion ? EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, this.getItemStack()) : 0;
 
                 if (contusionWorld > 0) {
-                    livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5));
-                    livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 20*5*contusionWorld, 3));
+                    livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5));
+                    livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 20*5*contusionWorld, 3));
                 }
 
                 int fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, this.getItemStack());
@@ -252,32 +252,36 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                 }
 
                 if (entity1 instanceof LivingEntity) {
-                    EnchantmentHelper.onUserDamaged(livingentity1, entity1);
-                    EnchantmentHelper.onTargetDamaged((LivingEntity)entity1, livingentity1);
+                    EnchantmentHelper.onUserDamaged(livingEntity1, entity1);
+                    EnchantmentHelper.onTargetDamaged((LivingEntity)entity1, livingEntity1);
                 }
 
-                this.onHit(livingentity1);
+                this.onHit(livingEntity1);
 
-                if(this.getItemStack().getItem() instanceof BlockItem) {
-                    Block blockItem = Block.getBlockFromItem(this.getItemStack().getItem());
-                    if(blockItem instanceof SandBlock) {
-                        if(livingentity1.getRandom().nextInt(10) == 0) livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60, 3));
+                if (this.getItemStack().getItem() instanceof BlockItem) {
+                    var blockItem = Block.getBlockFromItem(this.getItemStack().getItem());
+                    switch(blockItem) {
+                        case SandBlock sandBlock -> {
+                            if (livingEntity1.getRandom().nextInt(10) == 0)
+                                livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.BLINDNESS, 60, 3));
+                        }
+                        case TorchBlock torchBlock -> {
+                            if (livingEntity1.getRandom().nextInt(5) == 0)
+                                livingEntity1.setOnFireFor(1);
+                        }
+                        case AnvilBlock anvilBlock -> {
+                            livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 60, 3));
+                            livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5));
+                        }
+                        default -> {}
                     }
-                    else if (blockItem instanceof TorchBlock){
-                        if(livingentity1.getRandom().nextInt(5) == 0) livingentity1.setOnFireFor(1);
-                    }
-                    else if (blockItem instanceof AnvilBlock){
-                        livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.NAUSEA, 60, 3));
-                        livingentity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5));
-                    }
-                }else {
-                    Item itemThrowed = this.getItemStack().getItem();
-                    if(itemThrowed.equals(Items.BLAZE_ROD) || itemThrowed.equals(Items.BLAZE_POWDER)) {
-                        livingentity1.setOnFireFor(1);
+                } else {
+                    Item itemThrown = this.getItemStack().getItem();
+                    if(itemThrown.equals(Items.BLAZE_ROD) || itemThrown.equals(Items.BLAZE_POWDER)) {
+                        livingEntity1.setOnFireFor(1);
                     }
                 }
             }
-
 
         }
 
@@ -329,7 +333,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
     @Override
     public void checkDespawn() {
         int i = this.dataTracker.get(LOYALTY_LEVEL);
-        if (this.pickupType != PersistentProjectileEntity.PickupPermission.ALLOWED || i <= 0) {
+        if (this.pickupType != PickupPermission.ALLOWED || i <= 0) {
 
             if (this.inGroundTime >= ConfigRegistry.COMMON.get().times.despawnTime) {
                 this.remove(RemovalReason.DISCARDED);
@@ -413,7 +417,8 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                     this.setVelocity(vec3.x, vec3.y, -vec3.z);
                 }
                 this.counterClockwiseBounce = !this.counterClockwiseBounce;
-                this.inGround = false;}
+                this.inGround = false;
+            }
         }
     }
 
