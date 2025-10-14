@@ -11,10 +11,10 @@ public class CPacketThrow extends BasePacket {
 
     public static void register() {
         ServerPlayNetworking.registerGlobalReceiver(PacketIdentifiers.CPACKET_THROW, (server, player, handler, buf, responseSender) -> {
-            State action = State.fromByte(buf.readByte());
+            State action = State.Companion.fromByte(buf.readByte());
 
             server.execute(() -> {
-                EventsHandler.onThrowItem(player, action);
+                EventsHandler.INSTANCE.onThrowItem(player, action);
             });
         });
     }

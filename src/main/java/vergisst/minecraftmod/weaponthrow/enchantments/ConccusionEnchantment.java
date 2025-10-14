@@ -23,7 +23,7 @@ public class ConccusionEnchantment extends Enchantment {
     }
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        boolean enchantAll = ConfigRegistry.COMMON.getConfig().enchantments.enchantAllWeapons;
+        boolean enchantAll = ConfigRegistry.INSTANCE.COMMON.getConfig().enchantments.enchantAllWeapons;
         boolean isAxe = stack.getItem() instanceof AxeItem;
         boolean canApply = super.isAcceptableItem(stack);
         return (isAxe || canApply || enchantAll) && ConfigRegistry.COMMON.getConfig().enchantments.enableConccusion;

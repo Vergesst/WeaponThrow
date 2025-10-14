@@ -46,7 +46,6 @@ import org.jetbrains.annotations.Nullable;
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry;
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler;
 import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -77,7 +76,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
     }
 
     public WeaponThrowEntity(World worldIn, LivingEntity thrower, boolean canDestroy , float attackDamage, ItemStack thrownStackIn) {
-        super(EntityRegistry.WEAPONTHROW, thrower, worldIn);
+        super(EntityRegistry.INSTANCE.getWEAPONTHROW(), thrower, worldIn);
         this.attackDamage = attackDamage;
         this.dataTracker.set(COMPOUND_STACK, thrownStackIn.copy().writeNbt(new NbtCompound()));
         this.dataTracker.set(LOYALTY_LEVEL, (byte)WeaponThrowEntity.getReturnOrLoyaltyEnchantment(thrownStackIn));
@@ -86,7 +85,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
     }
 
     public WeaponThrowEntity(World worldIn, double x, double y, double z) {
-        super(EntityRegistry.WEAPONTHROW, x, y, z, worldIn);
+        super(EntityRegistry.INSTANCE.getWEAPONTHROW(), x, y, z, worldIn);
     }
 
     protected void initDataTracker() {
@@ -137,7 +136,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
             this.setDestroyedBlock(BlockPos.ORIGIN);
         }
 
-        int gravityWorld = ConfigRegistry.COMMON.get().enchantments.enableGravity ? EnchantmentHelper.getLevel(EnchantmentHandler.GRAVITY, this.getItemStack()) : 0;
+        int gravityWorld = ConfigRegistry.COMMON.get().enchantments.enableGravity ? EnchantmentHelper.getLevel(EnchantmentHandler.INSTANCE.getGRAVITY(), this.getItemStack()) : 0;
         if(gravityWorld > 0) {this.setNoGravity(true);
             if(this.getWorld().isOutOfHeightLimit(this.getBlockPos())) {
                 this.setVelocity(this.getVelocity().multiply(1, 0, 1));
@@ -210,7 +209,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
         float f = this.attackDamage;
         if (entity instanceof LivingEntity livingentity) {
 
-            f += ConfigRegistry.COMMON.get().enchantments.enableThrow ? EnchantmentHelper.getLevel(EnchantmentHandler.THROW, this.getItemStack())*1F : 0;
+            f += ConfigRegistry.COMMON.get().enchantments.enableThrow ? EnchantmentHelper.getLevel(EnchantmentHandler.INSTANCE.getTHROW(), this.getItemStack())*1F : 0;
             f += EnchantmentHelper.getAttackDamage(this.getItemStack(), livingentity.getGroup());
         }
 
@@ -232,7 +231,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
             if (entity instanceof LivingEntity livingEntity1) {
 
 
-                int contusionWorld = ConfigRegistry.COMMON.get().enchantments.enableConccusion ? EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, this.getItemStack()) : 0;
+                int contusionWorld = ConfigRegistry.COMMON.get().enchantments.enableConccusion ? EnchantmentHelper.getLevel(EnchantmentHandler.INSTANCE.getCONCCUSION(), this.getItemStack()) : 0;
 
                 if (contusionWorld > 0) {
                     livingEntity1.addStatusEffect(new StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5));
@@ -240,7 +239,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
                 }
 
                 int fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, this.getItemStack());
-                int groundedWorld = ConfigRegistry.COMMON.get().enchantments.enableGroundedEdge ? EnchantmentHelper.getLevel(EnchantmentHandler.GROUNDEDEDGE, this.getItemStack()) : 0;
+                int groundedWorld = ConfigRegistry.COMMON.get().enchantments.enableGroundedEdge ? EnchantmentHelper.getLevel(EnchantmentHandler.INSTANCE.getGROUNDEDEDGE(), this.getItemStack()) : 0;
 
                 if(fireTime > 0 || groundedWorld > 0) {
                     List<LivingEntity> nearEntities = this.getWorld().getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(1.0D));
@@ -477,7 +476,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
 
     public static int getReturnOrLoyaltyEnchantment(ItemStack stack) {
         int loyaltyLevel = EnchantmentHelper.getLevel(Enchantments.LOYALTY, stack);
-        int returnLevel = EnchantmentHelper.getLevel(EnchantmentHandler.RETURN, stack);
+        int returnLevel = EnchantmentHelper.getLevel(EnchantmentHandler.INSTANCE.getRETURN(), stack);
         return loyaltyLevel > 0 ? loyaltyLevel : returnLevel;
     }
 

@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.invoke
 plugins {
     id("fabric-loom") version "1.4.1"
     id("maven-publish")
+    kotlin("jvm") version "2.0.0"
 }
 
 // basic settings of project
@@ -74,6 +75,7 @@ dependencies {
     mappings("net.fabricmc:yarn:${project.property("yarn_mappings")}:v2")
     modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.property("fabric_version")}")
+    modImplementation("net.fabricmc:fabric-language-kotlin:${project.property("fabric_kotlin_version")}")
 
     // other dependencies
     compileAndRuntimeOnly("me.shedaniel.cloth:cloth-config-fabric:${project.property("cloth_version")}") {
@@ -95,7 +97,6 @@ tasks.processResources {
             "version" to project.version,
             "minecraft_version" to project.property("minecraft_version"),
             "loader_version" to project.property("loader_version"),
-
         )
     }
 }
@@ -108,7 +109,8 @@ tasks.withType<JavaCompile>().configureEach {
     options.release.set(targetJvmVersion.toString().toInt())
 
     // extra options to enable pattern matching in Java17 -- preview feature
-    options.compilerArgs.add("--enable-preview")
+    // considering features which has been realized in kotlin, this is not needed
+     options.compilerArgs.add("--enable-preview")
 }
 
 tasks.jar {
@@ -134,4 +136,7 @@ publishing {
         // retrieving dependencies.
 
     }
+}
+kotlin {
+    jvmToolchain(17)
 }
