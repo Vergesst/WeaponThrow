@@ -10,8 +10,7 @@ import vergisst.minecraftmod.weaponthrow.handler.PacketHandler
 
 class WeaponThrow: ModInitializer {
     companion object{
-        val LOGGER = LogManager.getLogger()
-        const val MOD_ID = "weaponthrow"
+        const val MOD_ID = "weapon_throw"
     }
 
     override fun onInitialize() {

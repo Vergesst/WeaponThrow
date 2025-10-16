@@ -1,29 +1,33 @@
 package vergisst.minecraftmod.weaponthrow.handler
 
+import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.entity.Entity
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
-import vergisst.minecraftmod.weaponthrow.packets.BasePacket
-import vergisst.minecraftmod.weaponthrow.packets.CPacketThrow
+import vergisst.minecraftmod.weaponthrow.packets.PacketIdentifiers
+import vergisst.minecraftmod.weaponthrow.packets.State
 
 object PacketHandler {
-    fun registerServerListener() = CPacketThrow.register()
+    fun registerServerListener() {
+        ServerPlayNetworking.registerGlobalReceiver(PacketIdentifiers.CLIENT_THROW_PACKET)
+        { server,
+          player,
+          handler,
+          buf,
+          responseSender ->
 
-    fun sendToAllTracking(entity: Entity, packet: BasePacket) {
-        if(entity.world is ServerWorld) {
-            if(entity is ServerPlayerEntity) {
-                ServerPlayNetworking.send(entity, packet.identifier, packet.buf)
+            val action = State.fromByte(buf.readByte().toInt())
+            server.execute {
+                EventsHandler.onThrowItem(player, action)
             }
-
-            sendToAll(entity, packet)
         }
     }
 
-    fun sendToAll(entity: Entity, packet: BasePacket) {
+    fun sendToAll(entity: Entity, packet: FabricPacket) {
         for(player in PlayerLookup.tracking(entity.world as ServerWorld, entity.blockPos)) {
-            ServerPlayNetworking.send(player, packet.identifier, packet.buf)
+            ServerPlayNetworking.send(player, packet)
         }
     }
 }

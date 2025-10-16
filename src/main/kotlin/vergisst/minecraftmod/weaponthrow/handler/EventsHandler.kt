@@ -18,7 +18,7 @@ import vergisst.minecraftmod.weaponthrow.Interface.IPlayerEntityMixin
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 import vergisst.minecraftmod.weaponthrow.events.OnStartPlayerTick
-import vergisst.minecraftmod.weaponthrow.packets.SPacketThrow
+import vergisst.minecraftmod.weaponthrow.packets.S2CThrowPacket
 import vergisst.minecraftmod.weaponthrow.packets.State
 import kotlin.math.sign
 
@@ -56,7 +56,7 @@ object EventsHandler {
 
                 when(cap.action) {
                     State.START, State.FINISH -> {
-                        PacketHandler.sendToAll(player, SPacketThrow(
+                        PacketHandler.sendToAll(player, S2CThrowPacket(
                             player.uuid,
                             PlayerThrowData.getMaximumCharge(player),
                             cap.action == State.START

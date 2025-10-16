@@ -12,7 +12,7 @@ import vergisst.minecraftmod.weaponthrow.Interface.IPlayerEntityMixin;
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData;
 import vergisst.minecraftmod.weaponthrow.client.events.OnHeldItemRender;
 import vergisst.minecraftmod.weaponthrow.client.events.OnStartPlayerRender;
-import vergisst.minecraftmod.weaponthrow.packets.CPacketThrow;
+import vergisst.minecraftmod.weaponthrow.packets.C2SThrowPacket;
 import vergisst.minecraftmod.weaponthrow.events.OnApplySlow;
 import vergisst.minecraftmod.weaponthrow.events.OnFOVUpdate;
 import vergisst.minecraftmod.weaponthrow.packets.State;
@@ -117,10 +117,10 @@ public class EventsHandler {
             boolean pressed = KeyBindingHandler.KEYBINDING.isPressed();
 
             if (pressed) {
-                PacketHandler.sendToServer(new CPacketThrow(EventsHandler.wasPressed ? State.DURING: State.START));
+                PacketHandler.INSTANCE.sendToServer(new C2SThrowPacket(EventsHandler.wasPressed ? State.DURING: State.START));
                 EventsHandler.wasPressed = true;
             }else if(EventsHandler.wasPressed){
-                PacketHandler.sendToServer(new CPacketThrow(State.FINISH));
+                PacketHandler.INSTANCE.sendToServer(new C2SThrowPacket(State.FINISH));
                 EventsHandler.wasPressed = false;
             }
         });
