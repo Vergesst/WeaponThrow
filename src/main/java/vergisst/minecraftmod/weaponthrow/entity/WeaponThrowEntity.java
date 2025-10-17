@@ -81,7 +81,7 @@ public class WeaponThrowEntity extends PersistentProjectileEntity implements Fly
         this.dataTracker.set(COMPOUND_STACK, thrownStackIn.copy().writeNbt(new NbtCompound()));
         this.dataTracker.set(LOYALTY_LEVEL, (byte)WeaponThrowEntity.getReturnOrLoyaltyEnchantment(thrownStackIn));
         this.dataTracker.set(DESTROYED_BLOCK, BlockPos.ORIGIN);
-        this.dataTracker.set(SHOULD_DESTROY, canDestroy);
+        this.dataTracker.set(DESTROYED_BLOCK, BlockPos.ORIGIN);
     }
 
     public WeaponThrowEntity(World worldIn, double x, double y, double z) {

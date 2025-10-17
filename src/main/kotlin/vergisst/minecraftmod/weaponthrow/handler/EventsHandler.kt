@@ -14,7 +14,7 @@ import net.minecraft.item.SwordItem
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvents
-import vergisst.minecraftmod.weaponthrow.Interface.IPlayerEntityMixin
+import vergisst.minecraftmod.weaponthrow.interfaces.IPlayerEntityMixin
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 import vergisst.minecraftmod.weaponthrow.events.OnStartPlayerTick

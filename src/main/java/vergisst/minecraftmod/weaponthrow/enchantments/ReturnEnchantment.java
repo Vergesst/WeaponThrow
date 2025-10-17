@@ -30,6 +30,5 @@ public class ReturnEnchantment extends Enchantment {
         boolean canApply = super.isAcceptableItem(stack);
         return (isAxe || canApply || enchantAll) && ConfigRegistry.COMMON.getConfig().enchantments.enableReturn;
     }
-
 }
 

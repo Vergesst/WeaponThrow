@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
-import vergisst.minecraftmod.weaponthrow.Interface.IPlayerEntityMixin;
+import vergisst.minecraftmod.weaponthrow.interfaces.IPlayerEntityMixin;
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData;
 import vergisst.minecraftmod.weaponthrow.client.events.OnHeldItemRender;
 import vergisst.minecraftmod.weaponthrow.client.events.OnStartPlayerRender;
