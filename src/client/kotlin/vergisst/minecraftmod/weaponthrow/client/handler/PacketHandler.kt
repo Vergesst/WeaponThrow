@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import vergisst.minecraftmod.weaponthrow.packets.PacketIdentifiers
-import java.beans.EventHandler
 
 object PacketHandler {
     fun sendToServer(packet: FabricPacket) {

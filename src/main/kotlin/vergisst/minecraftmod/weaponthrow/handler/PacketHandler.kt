@@ -4,7 +4,7 @@ import net.fabricmc.fabric.api.networking.v1.FabricPacket
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.entity.Entity
-import net.minecraft.server.network.ServerPlayerEntity
+
 import net.minecraft.server.world.ServerWorld
 import vergisst.minecraftmod.weaponthrow.packets.PacketIdentifiers
 import vergisst.minecraftmod.weaponthrow.packets.State

@@ -9,6 +9,7 @@ import net.minecraft.client.render.model.json.ModelTransformationMode
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.MathHelper
 import org.joml.Quaternionf
+import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 import vergisst.minecraftmod.weaponthrow.impl.MathConstant.POSITIVE_Y
 import vergisst.minecraftmod.weaponthrow.impl.MathConstant.POSITIVE_Z

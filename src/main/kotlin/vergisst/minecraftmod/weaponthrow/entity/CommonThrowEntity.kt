@@ -2,12 +2,7 @@ package vergisst.minecraftmod.weaponthrow.entity
 
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.EnvironmentInterface
-import net.minecraft.block.AnvilBlock
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.block.SandBlock
-import net.minecraft.block.TorchBlock
+import net.minecraft.block.*
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
 import net.minecraft.entity.EntityType
@@ -25,6 +20,9 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtHelper
+import net.minecraft.network.listener.ClientPlayPacketListener
+import net.minecraft.network.packet.Packet
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvent
 import net.minecraft.sound.SoundEvents
@@ -75,21 +73,23 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             : super(EntityRegistry.COMMON_THROW_ENTITY, x, y, z, worldIn)
 
     companion object {
-        val LOYALTY_LEVEL: TrackedData<Byte?>? =
-            DataTracker.registerData<Byte?>(WeaponThrowEntity::class.java, TrackedDataHandlerRegistry.BYTE)
-        val COMPOUND_STACK: TrackedData<NbtCompound?>? = DataTracker.registerData<NbtCompound?>(
-            WeaponThrowEntity::class.java,
+        val LOYALTY_LEVEL: TrackedData<Byte> =
+            DataTracker.registerData<Byte>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BYTE)
+        val COMPOUND_STACK: TrackedData<NbtCompound> = DataTracker.registerData<NbtCompound>(
+            CommonThrowEntity::class.java,
             TrackedDataHandlerRegistry.NBT_COMPOUND
         )
-        val DESTROYED_BLOCK: TrackedData<BlockPos?>? =
-            DataTracker.registerData<BlockPos?>(WeaponThrowEntity::class.java, TrackedDataHandlerRegistry.BLOCK_POS)
+        val DESTROYED_BLOCK: TrackedData<BlockPos> =
+            DataTracker.registerData<BlockPos>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BLOCK_POS)
         val SHOULD_DESTROY: TrackedData<Boolean> =
-            DataTracker.registerData<Boolean>(WeaponThrowEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
+            DataTracker.registerData<Boolean>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
 
         val enchantmentsConfig: WeaponThrowConfig.Enchantments = ConfigRegistry.COMMON.get().enchantments
 
         fun getReturnOrLoyaltyEnchantment(targetStack: ItemStack): Int {
-            TODO("Not yet implemented")
+            val loyaltyLevel = EnchantmentHelper.getLevel(Enchantments.LOYALTY, targetStack)
+            val returnLevel = EnchantmentHelper.getLevel(EnchantmentHandler.RETURN, targetStack)
+            return if (loyaltyLevel > 0) loyaltyLevel else returnLevel
         }
     }
 
@@ -100,9 +100,9 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     fun shouldDestroy(): Boolean = dataTracker[SHOULD_DESTROY]
 
     fun setDestroyedBlock(pos: BlockPos) = dataTracker.set(DESTROYED_BLOCK, pos)
-    fun getDestroyedBlock() = dataTracker[DESTROYED_BLOCK]
+    fun getDestroyedBlock(): BlockPos = dataTracker[DESTROYED_BLOCK]
 
-    private val handleItemType = { weapon: CommonThrowEntity, target: LivingEntity ->
+    private fun handleItemType(weapon: CommonThrowEntity, target: LivingEntity) {
         val weaponItem = weapon.getItemStack().item
         if (weaponItem is BlockItem) {
             val blockItem = Block.getBlockFromItem(weaponItem)
@@ -122,7 +122,7 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             target.setOnFireFor(1)
     }
 
-    private val handleDamage = { entity: LivingEntity ->
+    private fun handleDamage(entity: LivingEntity) {
         val contusionWorld = if (enchantmentsConfig.enableConccusion) EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, getItemStack()) else 0
         val groundedWorld = if (enchantmentsConfig.enableGroundedEdge) EnchantmentHelper.getLevel(EnchantmentHandler.GROUNDEDEDGE, getItemStack()) else 0
         val fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, getItemStack())
@@ -146,9 +146,9 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         }
     }
 
-    private val doInteractions = {action: Runnable ->
+    private fun doInteractions(action: Runnable) {
         val originStack = (owner as PlayerEntity).getStackInHand(Hand.MAIN_HAND)
-        (owner as PlayerEntity).setStackInHand(Hand.MAIN_HAND, getItemStack())
+        (owner as? PlayerEntity)?.setStackInHand(Hand.MAIN_HAND, getItemStack())
 
         action.run()
 
@@ -162,13 +162,20 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         }
     }
 
-    private val spawnItemParticles = {stack: ItemStack ->
+    private fun spawnItemParticles(stack: ItemStack) {
         val loyaltyLevel = EnchantmentHelper.getLevel(Enchantments.LOYALTY, stack)
         val returnLevel = EnchantmentHelper.getLevel(EnchantmentHandler.RETURN, stack)
         if(loyaltyLevel > 0) loyaltyLevel else returnLevel
     }
 
+    private fun shouldReturnToOwner() = if(owner != null && owner!!.isAlive)
+            owner !is ServerPlayerEntity && owner !is ServerPlayerEntity
+        else
+            false
+
     override fun getHitSound(): SoundEvent = SoundEvents.BLOCK_METAL_HIT
+
+    override fun createSpawnPacket(): Packet<ClientPlayPacketListener?>? = super.createSpawnPacket()
 
     override fun onPlayerCollision(entityIn: PlayerEntity) {
         if (owner == null || owner?.uuid == entityIn.uuid || inGroundTime > ConfigRegistry.COMMON.get().times.ticksUntilWeaponLoseOwner)
@@ -179,9 +186,15 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         dealtDamage = (inGroundTime > 4 && !dealtDamage)
 
         if (getDestroyedBlock() != BlockPos.ZERO && !world.isClient) {
+            doInteractions {
+                val event = world.getBlockState(getDestroyedBlock()).soundGroup.breakSound
+                val destroyed = (owner as ServerPlayerEntity).interactionManager.tryBreakBlock(getDestroyedBlock())
+                if (destroyed)
+                    world.playSound(null, getDestroyedBlock(), event, SoundCategory.AMBIENT, 10F, 1.0F)
+            }
+
             this.setDestroyedBlock(BlockPos.ORIGIN)
         }
-        // TODO do interactions is needed
 
         val gravityWorld = if (enchantmentsConfig.enableGravity) EnchantmentHelper.getLevel(EnchantmentHandler.GRAVITY, getItemStack()) else 0
 
@@ -196,6 +209,33 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
                 setNoGravity(false)
             }
         }
+        val i: Int = if (enchantmentsConfig.enableReturn) dataTracker[LOYALTY_LEVEL]!!.toInt() else 0
+
+        val tempOwner=  owner
+        if (i > 0 && (dealtDamage || isNoClip) && tempOwner != null) {
+            if (shouldReturnToOwner()) {
+                setNoClip(true)
+                val vec3d = tempOwner.eyePos.subtract(pos)
+                setPos(x, y + vec3d.y * 0.015 * i.toDouble(), z)
+                if (world.isClient) {
+                    lastRenderY = y
+                }
+
+                val d0 = 0.05 * i.toDouble()
+                velocity = velocity.multiply(0.95).add(vec3d.normalize().multiply(d0))
+                if (returningTicks == 0) {
+                    playSound(SoundEvents.ITEM_TRIDENT_RETURN, 10.0F, 1.0F)
+                }
+
+                returningTicks++
+            } else {
+                if (!world.isClient && pickupType == PickupPermission.ALLOWED) {
+                    dropStack(getItemStack(), 0.1F)
+                }
+                remove(RemovalReason.DISCARDED)
+            }
+        }
+        super.tick()
     }
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
@@ -203,8 +243,6 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         var damage = attackDamage
         val damageSource = damageSources.thrown(this, owner ?: this)
         val sound = SoundEvents.ITEM_TRIDENT_HIT
-
-
 
         dealtDamage = true
 
@@ -231,6 +269,56 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
 
         velocity = velocity.multiply(-0.01, -0.1, -0.01)
         playSound(sound, 1.0F, 1.0F)
+    }
+
+    override fun onBlockHit(blockHitResult: BlockHitResult) {
+        val vec3d = blockHitResult.pos.subtract(x, y, z)
+        val anotherVec3d = vec3d.normalize().multiply(0.05)
+        val event = if (getItemStack().item is BlockItem) {
+            val block = Block.getBlockFromItem(getItemStack().item)
+            block.defaultState.soundGroup.hitSound
+        } else
+            SoundEvents.ITEM_TRIDENT_HIT_GROUND
+
+        lastState = world.getBlockState(blockHitResult.blockPos)
+        velocity = vec3d
+        inGround = true
+        shake = 7
+        isCritical = false
+        pierceLevel = 0
+        sound = event
+        isShotFromCrossbow = false
+
+        setPos(x - anotherVec3d.x, y - anotherVec3d.y, z - anotherVec3d.z)
+        playSound(event, 1.0F, 1.2F / (random.nextFloat() * 0.2F + 0.9F))
+        applyBounce()
+    }
+
+    fun applyBounce() {
+        if (
+            inGround && getItemStack().item is BlockItem &&
+            abs(velocity.x) < 0.05 && abs(velocity.z) < 0.05
+        ) {
+            val vec3d = velocity.multiply(0.9)
+            val landingPos = steppingPos
+
+            if (!this.world.getBlockState(landingPos.down()).isAir || !this.world
+                    .getBlockState(landingPos.up()).isAir
+            ) {
+                this.setVelocity(vec3d.x, -vec3d.y, vec3d.z)
+            } else if (!this.world.getBlockState(landingPos.west()).isAir || !this.world
+                    .getBlockState(landingPos.east()).isAir
+            ) {
+                this.setVelocity(-vec3d.x, vec3d.y, vec3d.z)
+            } else if (!this.world.getBlockState(landingPos.north()).isAir || !this.world
+                    .getBlockState(landingPos.south()).isAir
+            ) {
+                this.setVelocity(vec3d.x, vec3d.y, -vec3d.z)
+            }
+
+            counterClockwiseBounce = !counterClockwiseBounce
+            inGround = false
+        }
     }
 
     override fun readCustomDataFromNbt(compound: NbtCompound) {
@@ -299,6 +387,13 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         dataTracker.startTracking(LOYALTY_LEVEL, 0)
         dataTracker.startTracking(DESTROYED_BLOCK, BlockPos.ORIGIN)
         dataTracker.startTracking(SHOULD_DESTROY, false)
+    }
+
+    fun getRotationAnimation(partialTicks: Float): Float {
+        if (!inGround)
+            clientSideRotation = (if (counterClockwiseBounce) 1 else -1)*(age + partialTicks)
+
+        return clientSideRotation
     }
 
 }

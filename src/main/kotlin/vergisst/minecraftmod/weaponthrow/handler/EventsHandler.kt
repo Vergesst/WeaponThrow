@@ -16,6 +16,7 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvents
 import vergisst.minecraftmod.weaponthrow.interfaces.IPlayerEntityMixin
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData
+import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 import vergisst.minecraftmod.weaponthrow.events.OnStartPlayerTick
 import vergisst.minecraftmod.weaponthrow.packets.S2CThrowPacket
@@ -115,6 +116,14 @@ object EventsHandler {
                         )
 
                         val thrownEntity = WeaponThrowEntity(
+                            world,
+                            serverPlayer,
+                            shouldDestroy,
+                            totalDamage.toFloat(),
+                            stack.split(size)
+                        )
+
+                        val commonThrowEntity = CommonThrowEntity (
                             world,
                             serverPlayer,
                             shouldDestroy,
