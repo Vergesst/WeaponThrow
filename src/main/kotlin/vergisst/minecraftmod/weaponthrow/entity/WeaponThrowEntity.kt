@@ -77,9 +77,9 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     ) {
         this.attackDamage = attackDamage
         this.dataTracker.set<NbtCompound?>(COMPOUND_STACK, thrownStackIn.copy().writeNbt(NbtCompound()))
-        this.dataTracker.set<Byte?>(LOYALTY_LEVEL, getReturnOrLoyaltyEnchantment(thrownStackIn).toByte())
-        this.dataTracker.set<BlockPos?>(DESTROYED_BLOCK, BlockPos.ORIGIN)
-        this.dataTracker.set<BlockPos?>(DESTROYED_BLOCK, BlockPos.ORIGIN)
+        this.dataTracker.set<Byte>(LOYALTY_LEVEL, getReturnOrLoyaltyEnchantment(thrownStackIn).toByte())
+        this.dataTracker.set<BlockPos>(DESTROYED_BLOCK, BlockPos.ORIGIN)
+        this.dataTracker.set<Boolean>(SHOULD_DESTROY, canDestroy)
     }
 
     constructor(worldIn: World?, x: Double, y: Double, z: Double) : super(WEAPON_THROW, x, y, z, worldIn)
@@ -87,9 +87,9 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     override fun initDataTracker() {
         super.initDataTracker()
         this.dataTracker.startTracking<NbtCompound?>(COMPOUND_STACK, NbtCompound())
-        this.dataTracker.startTracking<Byte?>(LOYALTY_LEVEL, 0.toByte())
-        this.dataTracker.startTracking<BlockPos?>(DESTROYED_BLOCK, BlockPos.ORIGIN)
-        this.dataTracker.startTracking<Boolean?>(SHOULD_DESTROY, false)
+        this.dataTracker.startTracking<Byte>(LOYALTY_LEVEL, 0.toByte())
+        this.dataTracker.startTracking<BlockPos>(DESTROYED_BLOCK, BlockPos.ORIGIN)
+        this.dataTracker.startTracking<Boolean>(SHOULD_DESTROY, false)
     }
 
     var itemStack: ItemStack
