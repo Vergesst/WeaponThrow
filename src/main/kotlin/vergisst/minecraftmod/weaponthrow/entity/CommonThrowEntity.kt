@@ -39,9 +39,7 @@ import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry
 import kotlin.math.abs
 
 /**
- * You are son of bitch java, multi-constructor is just a rubbish in your api design
- * your brain just the same as MS's C# --- which is another rubbish
- * 你妈死了java
+ * Just a candidate to replace WeaponThrowEntity --- this is a more common entity for weapons except TRIDENT and HARMER
  */
 @EnvironmentInterface(value = EnvType.CLIENT, itf = FlyingItemEntity::class)
 class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
@@ -75,12 +73,15 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     companion object {
         val LOYALTY_LEVEL: TrackedData<Byte> =
             DataTracker.registerData<Byte>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BYTE)
+
         val COMPOUND_STACK: TrackedData<NbtCompound> = DataTracker.registerData<NbtCompound>(
             CommonThrowEntity::class.java,
             TrackedDataHandlerRegistry.NBT_COMPOUND
         )
+
         val DESTROYED_BLOCK: TrackedData<BlockPos> =
             DataTracker.registerData<BlockPos>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BLOCK_POS)
+
         val SHOULD_DESTROY: TrackedData<Boolean> =
             DataTracker.registerData<Boolean>(CommonThrowEntity::class.java, TrackedDataHandlerRegistry.BOOLEAN)
 
@@ -168,17 +169,21 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         if(loyaltyLevel > 0) loyaltyLevel else returnLevel
     }
 
-    private fun shouldReturnToOwner() = if(owner != null && owner!!.isAlive)
-            owner !is ServerPlayerEntity && owner !is ServerPlayerEntity
+    private fun shouldReturnToOwner(): Boolean {
+        val entity = owner
+        return if (entity != null && entity.isAlive)
+            (entity !is ServerPlayerEntity || !entity.isSpectator)
         else
             false
+    }
 
     override fun getHitSound(): SoundEvent = SoundEvents.BLOCK_METAL_HIT
 
     override fun createSpawnPacket(): Packet<ClientPlayPacketListener?>? = super.createSpawnPacket()
 
     override fun onPlayerCollision(entityIn: PlayerEntity) {
-        if (owner == null || owner?.uuid == entityIn.uuid || inGroundTime > ConfigRegistry.COMMON.get().times.ticksUntilWeaponLoseOwner)
+        val entity = owner
+        if (entity == null || entity.uuid == entityIn.uuid || inGroundTime > ConfigRegistry.COMMON.get().times.ticksUntilWeaponLoseOwner)
             super.onPlayerCollision(entityIn)
     }
 
@@ -196,7 +201,9 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             this.setDestroyedBlock(BlockPos.ORIGIN)
         }
 
-        val gravityWorld = if (enchantmentsConfig.enableGravity) EnchantmentHelper.getLevel(EnchantmentHandler.GRAVITY, getItemStack()) else 0
+        val gravityWorld = if (enchantmentsConfig.enableGravity)
+                EnchantmentHelper.getLevel(EnchantmentHandler.GRAVITY, getItemStack())
+            else 0
 
         if (gravityWorld > 0) {
             setNoGravity(true)
@@ -342,7 +349,7 @@ class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     }
 
     override fun checkDespawn() {
-        if (pickupType != PickupPermission.ALLOWED || dataTracker[LOYALTY_LEVEL]!! <= 0
+        if (pickupType != PickupPermission.ALLOWED || dataTracker[LOYALTY_LEVEL] <= 0
             || inGroundTime >= ConfigRegistry.COMMON.get().times.despawnTime) {
             remove(RemovalReason.DISCARDED)
         }

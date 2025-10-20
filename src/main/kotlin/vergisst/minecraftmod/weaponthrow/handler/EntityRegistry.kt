@@ -12,7 +12,7 @@ import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 
 object EntityRegistry {
-    var WEAPONTHROW: EntityType<WeaponThrowEntity> = Registry.register(
+    var WEAPON_THROW: EntityType<WeaponThrowEntity> = Registry.register(
         Registries.ENTITY_TYPE,
         Identifier.of(WeaponThrow.MOD_ID, "weapon_throw"),
         FabricEntityTypeBuilder.create(SpawnGroup.MISC, ::WeaponThrowEntity)

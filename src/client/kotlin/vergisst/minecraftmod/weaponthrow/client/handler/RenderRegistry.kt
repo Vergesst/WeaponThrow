@@ -6,6 +6,6 @@ import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry
 
 object RenderRegistry {
     fun registerRenderers() {
-        EntityRendererRegistry.register(EntityRegistry.WEAPONTHROW, ::WeaponThrowRenderer)
+        EntityRendererRegistry.register(EntityRegistry.WEAPON_THROW, ::WeaponThrowRenderer)
     }
 }
