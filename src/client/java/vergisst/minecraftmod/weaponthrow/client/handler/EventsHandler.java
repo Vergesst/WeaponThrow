@@ -114,7 +114,7 @@ public class EventsHandler {
 
         ClientTickEvents.END_WORLD_TICK.register(client -> {
 
-            boolean pressed = KeyBindingHandler.KEYBINDING.isPressed();
+            boolean pressed = KeyBindingHandler.INSTANCE.getKEYBINDING().isPressed();
 
             if (pressed) {
                 PacketHandler.INSTANCE.sendToServer(new C2SThrowPacket(EventsHandler.wasPressed ? State.DURING: State.START));

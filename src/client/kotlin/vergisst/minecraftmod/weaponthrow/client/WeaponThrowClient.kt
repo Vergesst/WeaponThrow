@@ -11,7 +11,7 @@ class WeaponThrowClient: ClientModInitializer {
     override fun onInitializeClient() {
         EventsHandler.registerClientEvents()
 
-        KeyBindingHandler.registerKeyBindings()
+        KeyBindingHandler.registerKeybindings()
 
         PacketHandler.register()
 
