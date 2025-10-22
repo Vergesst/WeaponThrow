@@ -110,7 +110,7 @@ tasks.withType<JavaCompile>().configureEach {
 
     // extra options to enable pattern matching in Java17 -- preview feature
     // considering features which has been realized in kotlin, this is not needed
-     options.compilerArgs.add("--enable-preview")
+    // options.compilerArgs.add("--enable-preview")
 }
 
 tasks.jar {
