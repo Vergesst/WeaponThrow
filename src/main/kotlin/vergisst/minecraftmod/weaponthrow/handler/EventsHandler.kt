@@ -39,7 +39,7 @@ object EventsHandler {
         val capRecharge = {player: PlayerEntity, cap: PlayerThrowData ->
             val attacked = player.getAttackCooldownProgress(0.0F) < 1.0F
             val cdConfig = ConfigRegistry.COMMON.get().general.notUseWhenCooldown
-            val changedItem = !ItemStack.areItemsEqual(cap.chargingStack, player.mainHandStack)
+            val changedItem = !ItemStack.areItemsEqual(cap.getChargingStack(), player.mainHandStack)
 
             if(attacked && cdConfig || changedItem) {
                 cap.resetCharging()

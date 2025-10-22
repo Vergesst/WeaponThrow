@@ -16,7 +16,7 @@ object PacketHandler {
         ClientPlayNetworking.registerGlobalReceiver(PacketIdentifiers.SERVER_THROW_PACKET)
         { client, handler, buf, receiver ->
             client.execute {
-                EventsHandler.onSeverUpdate(buf.readUuid(), buf.readVarInt(), buf.readBoolean())
+                EventsHandler.onServerUpdate(buf.readUuid(), buf.readVarInt(), buf.readBoolean())
             }
         }
     }

@@ -14,19 +14,19 @@ import vergisst.minecraftmod.weaponthrow.enchantments.ThrowEnchantment
 
 object EnchantmentHandler {
     val THROW = Registry.register(Registries.ENCHANTMENT,
-        Identifier(WeaponThrow.MOD_ID, "throw"), ThrowEnchantment(Enchantment.Rarity.RARE, EquipmentSlot.MAINHAND)
+        Identifier(WeaponThrow.MOD_ID, "throw"), ThrowEnchantment(Enchantment.Rarity.RARE, arrayOf(EquipmentSlot.MAINHAND))
     );
     val GROUNDEDEDGE = Registry.register(Registries.ENCHANTMENT, Identifier(WeaponThrow.MOD_ID, "groundededge"),
-        GroundedEdgeEnchantment(Enchantment.Rarity.UNCOMMON, EquipmentSlot.MAINHAND)
+        GroundedEdgeEnchantment(Enchantment.Rarity.UNCOMMON, arrayOf(EquipmentSlot.MAINHAND))
     );
     val CONCCUSION = Registry.register(Registries.ENCHANTMENT, Identifier(WeaponThrow.MOD_ID, "conccusion"),
-        ConccusionEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlot.MAINHAND)
+        ConccusionEnchantment(Enchantment.Rarity.VERY_RARE, arrayOf(EquipmentSlot.MAINHAND))
     );
     val GRAVITY = Registry.register(Registries.ENCHANTMENT, Identifier(WeaponThrow.MOD_ID, "gravity"),
-        GravityEnchantment(Enchantment.Rarity.VERY_RARE, EquipmentSlot.MAINHAND)
+        GravityEnchantment(Enchantment.Rarity.VERY_RARE, arrayOf(EquipmentSlot.MAINHAND))
     );
     val RETURN = Registry.register(Registries.ENCHANTMENT, Identifier(WeaponThrow.MOD_ID, "return"),
-        ReturnEnchantment(Enchantment.Rarity.RARE, EquipmentSlot.MAINHAND)
+        ReturnEnchantment(Enchantment.Rarity.RARE, arrayOf(EquipmentSlot.MAINHAND))
     );
 
     fun registerEnchantment() {}

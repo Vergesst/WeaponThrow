@@ -26,13 +26,13 @@ public class EventsHandler {
 
     public static boolean wasPressed = false;
 
-    public static void onSeverUpdate(UUID playerUUID, int maxChargeTime, boolean isCharging) {
+    public static void onServerUpdate(UUID playerUUID, int maxChargeTime, boolean isCharging) {
         assert MinecraftClient.getInstance().world != null;
         PlayerEntity playerentity = MinecraftClient.getInstance().world.getPlayerByUuid(playerUUID);
         if(playerentity != null) {
 
             PlayerThrowData cap = ((IPlayerEntityMixin)playerentity).weaponThrow$getThrowPower();
-            cap.MAX_CHARGE = maxChargeTime;
+            cap.setMaxCharge(maxChargeTime);
 
             if(isCharging) {
                 cap.setChargeTime(maxChargeTime);
@@ -53,9 +53,9 @@ public class EventsHandler {
 
                 float preProgress = 1.0F;
 
-                if(Math.signum(cap.MAX_CHARGE) != 0.0F && cap.getChargeTime() > 0) {
+                if(Math.signum(cap.getMaxCharge()) != 0.0F && cap.getChargeTime() > 0) {
                     float lerp = MathHelper.lerp(tickDelta, cap.getChargeTime()+1, cap.getChargeTime());
-                    preProgress = 1.F- lerp /cap.MAX_CHARGE;
+                    preProgress = 1.F- lerp / cap.getMaxCharge();
                 }
 
                 float progress = MathHelper.clamp(preProgress, 0.F, 1.0F);
@@ -88,7 +88,7 @@ public class EventsHandler {
         OnFOVUpdate.EVENT.register((player, amount)->{
 
             var cap = ((IPlayerEntityMixin)player).weaponThrow$getThrowPower();
-            int maxChargeTime = cap.MAX_CHARGE;
+            int maxChargeTime = cap.getMaxCharge();
             int chargeTime = cap.getChargeTime();
             boolean isCharging = cap.getAction().equals(State.DURING);
             float f = amount;
