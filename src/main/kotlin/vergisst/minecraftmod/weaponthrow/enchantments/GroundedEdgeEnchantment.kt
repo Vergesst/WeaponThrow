@@ -7,7 +7,7 @@ import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry
 
-class GroundedEdgeEnchantment(rarity: Enchantment.Rarity, slot: Array<EquipmentSlot>):
+class GroundedEdgeEnchantment(rarity: Enchantment.Rarity, vararg slot: EquipmentSlot):
     Enchantment(rarity, EnchantmentTarget.WEAPON, slot) {
 
     override fun getMaxLevel() = 3

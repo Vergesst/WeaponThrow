@@ -7,7 +7,7 @@ import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry
 
-class GravityEnchantment(rarity: Enchantment.Rarity, slot: Array<EquipmentSlot>):
+class GravityEnchantment(rarity: Enchantment.Rarity, vararg slot: EquipmentSlot):
     Enchantment(rarity, EnchantmentTarget.WEAPON, slot) {
 
     fun getMinPower() = 25

@@ -7,7 +7,7 @@ import net.minecraft.item.AxeItem
 import net.minecraft.item.ItemStack
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry
 
-class ReturnEnchantment(rarity: Enchantment.Rarity, slot: Array<EquipmentSlot>):
+class ReturnEnchantment(rarity: Enchantment.Rarity, vararg slot: EquipmentSlot):
     Enchantment(rarity, EnchantmentTarget.WEAPON, slot) {
 
     override fun getMinPower(level: Int) = 5 + level * 7
