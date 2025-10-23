@@ -114,7 +114,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
 
 
     override fun tick() {
-        if (this.inGroundTime > 4 && !this.dealtDamage) {
+        if (this.inGroundTime > 4) {
             this.dealtDamage = true
         }
 

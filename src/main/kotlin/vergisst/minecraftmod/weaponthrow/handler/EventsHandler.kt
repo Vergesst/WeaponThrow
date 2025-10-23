@@ -123,13 +123,13 @@ object EventsHandler {
                             stack.split(size)
                         )
 
-                        val commonThrowEntity = CommonThrowEntity (
-                            world,
-                            serverPlayer,
-                            shouldDestroy,
-                            totalDamage.toFloat(),
-                            stack.split(size)
-                        )
+//                        val commonThrowEntity = CommonThrowEntity (
+//                            world,
+//                            serverPlayer,
+//                            shouldDestroy,
+//                            totalDamage.toFloat(),
+//                            stack.split(size)
+//                        )
 
                         thrownEntity.setVelocity(serverPlayer, serverPlayer.pitch, serverPlayer.yaw, 0.0F, totalVelocity.toFloat(), 1.0F)
                         serverPlayer.addExhaustion(totalExhaustion.toFloat())
