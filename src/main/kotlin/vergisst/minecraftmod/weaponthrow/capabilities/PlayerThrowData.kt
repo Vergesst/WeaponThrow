@@ -24,7 +24,7 @@ class PlayerThrowData(val player: PlayerEntity) {
     }
 
     fun resetCharging() {
-        action = if(action == State.DURING) State.FINISH else State.NONE
+        action = if(action == State.DURING) State.FINISH else action
         item = ItemStack.EMPTY
         chargeTime = -1
     }
