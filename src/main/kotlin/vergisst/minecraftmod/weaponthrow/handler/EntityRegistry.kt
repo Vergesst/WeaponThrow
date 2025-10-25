@@ -9,6 +9,7 @@ import net.minecraft.registry.Registry
 import net.minecraft.util.Identifier
 import vergisst.minecraftmod.weaponthrow.WeaponThrow
 import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
+//import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
 import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 
 object EntityRegistry {

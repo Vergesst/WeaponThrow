@@ -9,22 +9,22 @@ import net.minecraft.client.render.model.json.ModelTransformationMode
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.util.math.MathHelper
 import org.joml.Quaternionf
-import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
+import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
 import vergisst.minecraftmod.weaponthrow.impl.MathConstant.POSITIVE_Y
 import vergisst.minecraftmod.weaponthrow.impl.MathConstant.POSITIVE_Z
 
-class WeaponThrowRenderer(renderManagerIn: EntityRendererFactory.Context):
-    FlyingItemEntityRenderer<WeaponThrowEntity>(renderManagerIn) {
+class CommonThrowEntityRenderer(renderManagerIn: EntityRendererFactory.Context):
+    FlyingItemEntityRenderer<CommonThrowEntity>(renderManagerIn) {
     var itemRenderer: ItemRenderer = renderManagerIn.itemRenderer
 
     override fun render(
-        entityIn: WeaponThrowEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack,
+        entityIn: CommonThrowEntity, entityYaw: Float, partialTicks: Float, matrixStackIn: MatrixStack,
         bufferIn: VertexConsumerProvider, packedLightIn: Int
     ) {
         val degrees = entityIn.getRotationAnimation(partialTicks)
         val scale = 0.75F
         val interpolatedYaw = MathHelper.lerp(partialTicks, entityIn.prevYaw, entityIn.yaw)
-        val count = entityIn.itemStack.count
+        val count = entityIn.localStack.count
 
         matrixStackIn.push()
         matrixStackIn.translate(0F, 0.15F, 0F)

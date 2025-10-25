@@ -4,20 +4,24 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.attribute.EntityAttributes
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.projectile.PersistentProjectileEntity
+import net.minecraft.entity.projectile.TridentEntity
 import net.minecraft.item.AxeItem
 import net.minecraft.item.HoeItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.Items
 import net.minecraft.item.PickaxeItem
 import net.minecraft.item.ShovelItem
 import net.minecraft.item.SwordItem
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundEvents
+import net.minecraft.world.World
 import vergisst.minecraftmod.weaponthrow.interfaces.IPlayerEntityMixin
 import vergisst.minecraftmod.weaponthrow.capabilities.PlayerThrowData
 import vergisst.minecraftmod.weaponthrow.entity.CommonThrowEntity
-import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
+//import vergisst.minecraftmod.weaponthrow.entity.WeaponThrowEntity
 import vergisst.minecraftmod.weaponthrow.events.OnStartPlayerTick
 import vergisst.minecraftmod.weaponthrow.packets.S2CThrowPacket
 import vergisst.minecraftmod.weaponthrow.packets.State
@@ -82,6 +86,26 @@ object EventsHandler {
         }
     }
 
+    /**
+     * make sure that it is indeed a trident entity when throw a trident
+     * and the data of trident when thrown needs improvement
+     */
+    fun handleItem2Entity(
+        itemStack: ItemStack,
+        worldIn: World,
+        thrower: ServerPlayerEntity,
+        canDestroy: Boolean,
+        damage: Float
+    ): PersistentProjectileEntity {
+        return when(itemStack.item) {
+            Items.TRIDENT -> TridentEntity(worldIn, thrower, itemStack)
+
+            else -> CommonThrowEntity(
+                worldIn, thrower, canDestroy, damage, itemStack
+            )
+        }
+    }
+
     fun onThrowItem(serverPlayer: ServerPlayerEntity, action: State) {
         val world = serverPlayer.world as ServerWorld
         val stack = serverPlayer.mainHandStack
@@ -115,27 +139,17 @@ object EventsHandler {
                             size
                         )
 
-                        val thrownEntity = WeaponThrowEntity(
+                        val thrownEntity = handleItem2Entity(
+                            stack.split(size),
                             world,
                             serverPlayer,
                             shouldDestroy,
-                            totalDamage.toFloat(),
-                            stack.split(size)
+                            totalDamage.toFloat()
                         )
-
-//                        val commonThrowEntity = CommonThrowEntity (
-//                            world,
-//                            serverPlayer,
-//                            shouldDestroy,
-//                            totalDamage.toFloat(),
-//                            stack.split(size)
-//                        )
 
                         thrownEntity.setVelocity(serverPlayer, serverPlayer.pitch, serverPlayer.yaw, 0.0F, totalVelocity.toFloat(), 1.0F)
                         serverPlayer.addExhaustion(totalExhaustion.toFloat())
-
                         world.spawnEntity(thrownEntity)
-
                         thrownEntity.playSound(SoundEvents.ENTITY_EGG_THROW, 1.0F, 0.5F)
                     }
                     else -> {}

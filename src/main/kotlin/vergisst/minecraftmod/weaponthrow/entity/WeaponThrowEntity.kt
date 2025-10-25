@@ -7,8 +7,7 @@ import net.minecraft.block.AnvilBlock
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.block.SandBlock
-import net.minecraft.block.ShulkerBoxBlock.getItemStack
+import net.minecraft.block.ColoredFallingBlock
 import net.minecraft.block.TorchBlock
 import net.minecraft.enchantment.EnchantmentHelper
 import net.minecraft.enchantment.Enchantments
@@ -46,11 +45,8 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import vergisst.minecraftmod.weaponthrow.handler.ConfigRegistry
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler
-import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler.CONCCUSION
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler.GRAVITY
-import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler.GROUNDEDEDGE
 import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler.RETURN
-import vergisst.minecraftmod.weaponthrow.handler.EnchantmentHandler.THROW
 import vergisst.minecraftmod.weaponthrow.handler.EntityRegistry.WEAPON_THROW
 import java.util.*
 import kotlin.math.abs
@@ -64,7 +60,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     private var lastState: BlockState? = null
     var returningTicks: Int = 0
 
-    constructor(type: EntityType<out WeaponThrowEntity>, worldIn: World?) : super(type, worldIn)
+    constructor(type: EntityType<out WeaponThrowEntity>, worldIn: World?) : super(type, worldIn, DEFAULT_STACK)
 
     constructor(
         worldIn: World?,
@@ -73,7 +69,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         attackDamage: Float,
         thrownStackIn: ItemStack
     ) : super(
-        WEAPON_THROW, thrower, worldIn
+        WEAPON_THROW, thrower, worldIn, thrownStackIn
     ) {
         this.attackDamage = attackDamage
         dataTracker.set<NbtCompound?>(COMPOUND_STACK, thrownStackIn.copy().writeNbt(NbtCompound()))
@@ -82,9 +78,11 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         dataTracker.set<Boolean>(SHOULD_DESTROY, canDestroy)
     }
 
-    constructor(worldIn: World?, x: Double, y: Double, z: Double) : super(WEAPON_THROW, x, y, z, worldIn)
+    constructor(worldIn: World?, x: Double, y: Double, z: Double, item: ItemStack) : super(WEAPON_THROW, x, y, z, worldIn, item)
 
     companion object {
+        private val DEFAULT_STACK = ItemStack(Items.STONE_AXE)
+
         private val LOYALTY_LEVEL: TrackedData<Byte> =
             DataTracker.registerData<Byte>(WeaponThrowEntity::class.java, TrackedDataHandlerRegistry.BYTE)
 
@@ -111,7 +109,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     /**
      * getters and setters with properties
      */
-    var itemStack: ItemStack
+    var localStack: ItemStack
         get() = ItemStack.fromNbt(dataTracker[COMPOUND_STACK])
         set(stack) =
             dataTracker.set(COMPOUND_STACK, stack.writeNbt(NbtCompound()))
@@ -130,11 +128,11 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
      * Private helper functions here
      */
     private fun handleItemType(weapon: WeaponThrowEntity, target: LivingEntity) {
-        val weaponItem = weapon.itemStack.item
+        val weaponItem = weapon.localStack.item
         if (weaponItem is BlockItem) {
             val blockItem = Block.getBlockFromItem(weaponItem)
             when (blockItem) {
-                is SandBlock ->
+                is ColoredFallingBlock ->
                     if (target.random.nextInt(10) == 0)
                         target.addStatusEffect(StatusEffectInstance(StatusEffects.BLINDNESS, 60, 3))
                 is TorchBlock ->
@@ -150,9 +148,9 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     }
 
     private fun handleDamage(entity: LivingEntity) {
-        val contusionWorld = if (CommonThrowEntity.Companion.enchantmentsConfig.enableConccusion) EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, itemStack) else 0
-        val groundedWorld = if (CommonThrowEntity.Companion.enchantmentsConfig.enableGroundedEdge) EnchantmentHelper.getLevel(EnchantmentHandler.GROUNDEDEDGE, itemStack) else 0
-        val fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, itemStack)
+        val contusionWorld = if (enchantmentsConfig.enableConccusion) EnchantmentHelper.getLevel(EnchantmentHandler.CONCCUSION, localStack) else 0
+        val groundedWorld = if (enchantmentsConfig.enableGroundedEdge) EnchantmentHelper.getLevel(EnchantmentHandler.GROUNDEDEDGE, localStack) else 0
+        val fireTime = EnchantmentHelper.getLevel(Enchantments.FIRE_ASPECT, localStack)
 
         if(contusionWorld > 0) {
             entity.addStatusEffect(StatusEffectInstance(StatusEffects.SLOWNESS, 20*2*contusionWorld, 5))
@@ -175,28 +173,28 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
 
     fun doInteractions(action: Runnable) {
         val originalStack =
-            (Objects.requireNonNull<Entity?>(getOwner()) as PlayerEntity).getStackInHand(Hand.MAIN_HAND)
+            (Objects.requireNonNull<Entity?>(owner) as PlayerEntity).getStackInHand(Hand.MAIN_HAND)
 
-        (getOwner() as PlayerEntity).setStackInHand(Hand.MAIN_HAND, itemStack)
+        (owner as PlayerEntity).setStackInHand(Hand.MAIN_HAND, localStack)
 
         action.run()
 
-        val newStack = (getOwner() as PlayerEntity).getStackInHand(Hand.MAIN_HAND)
+        val newStack = (owner as PlayerEntity).getStackInHand(Hand.MAIN_HAND)
 
         if (!newStack.isEmpty) {
-            (getOwner() as PlayerEntity).setStackInHand(Hand.MAIN_HAND, originalStack)
+            (owner as PlayerEntity).setStackInHand(Hand.MAIN_HAND, originalStack)
         } else {
             world
-                .playSound(null, getBlockPos(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.AMBIENT, 0.8f, 10f)
+                .playSound(null, blockPos, SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.AMBIENT, 0.8f, 10f)
 
-            spawnItemParticles(itemStack)
+            spawnItemParticles(localStack)
 
             remove(RemovalReason.DISCARDED)
         }
     }
 
     private fun shouldReturnToThrower(): Boolean {
-        val entity = getOwner()
+        val entity = owner
 
         return if (entity != null && entity.isAlive) {
             entity !is ServerPlayerEntity || !entity.isSpectator
@@ -227,7 +225,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             destroyedBlock = BlockPos.ORIGIN
         }
 
-        val gravityWorld = if (enchantmentsConfig.enableGravity) EnchantmentHelper.getLevel(GRAVITY, itemStack
+        val gravityWorld = if (enchantmentsConfig.enableGravity) EnchantmentHelper.getLevel(GRAVITY, localStack
         ) else 0
         if (gravityWorld > 0) {
             setNoGravity(true)
@@ -247,7 +245,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             if (!shouldReturnToThrower()) {
                 // reminder -- check for twice
                 if (!world.isClient && pickupType == PickupPermission.ALLOWED) {
-                    dropStack(itemStack, 0.1f)
+                    dropStack(localStack, 0.1f)
                 }
 
                 remove(RemovalReason.DISCARDED)
@@ -272,126 +270,13 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     }
 
     override fun asItemStack(): ItemStack? {
-        return itemStack.copy()
+        return localStack.copy()
     }
 
 
     override fun getEntityCollision(vec3d: Vec3d, anotherVec3d: Vec3d): EntityHitResult? {
         return if (dealtDamage) null else super.getEntityCollision(vec3d, anotherVec3d)
     }
-
-//    override fun onEntityHit(entityHitResult: EntityHitResult) {
-//        val entity = entityHitResult.entity
-//        var f = attackDamage
-//        if (entity is LivingEntity) {
-//            f += if (enchantmentsConfig.enableThrow) EnchantmentHelper.getLevel(
-//                THROW,
-//                itemStack
-//            ) * 1f else 0f
-//            f += EnchantmentHelper.getAttackDamage(itemStack, entity.group)
-//        }
-//
-//        val entity1 = owner
-//        val damageSource = damageSources.thrown(this, entity1 ?: this)
-//
-//
-//
-//        dealtDamage = true
-//        val soundEvent = SoundEvents.ITEM_TRIDENT_HIT
-//
-//        if (entity.damage(damageSource, f)) {
-//            if (entity.type === EntityType.ENDERMAN) {
-//                return
-//            }
-//
-//            if (entity is LivingEntity) {
-//                val contusionWorld =
-//                    if (enchantmentsConfig.enableConccusion) EnchantmentHelper.getLevel(
-//                        CONCCUSION,
-//                        itemStack
-//                    ) else 0
-//
-//                if (contusionWorld > 0) {
-//                    entity.addStatusEffect(StatusEffectInstance(StatusEffects.SLOWNESS, 20 * 2 * contusionWorld, 5))
-//                    entity.addStatusEffect(StatusEffectInstance(StatusEffects.NAUSEA, 20 * 5 * contusionWorld, 3))
-//                }
-//
-//                val fireTime = EnchantmentHelper.getLevel(
-//                    Enchantments.FIRE_ASPECT,
-//                    itemStack
-//                )
-//                val groundedWorld =
-//                    if (enchantmentsConfig.enableGroundedEdge) EnchantmentHelper.getLevel(
-//                        GROUNDEDEDGE,
-//                        itemStack
-//                    ) else 0
-//
-//                if (fireTime > 0 || groundedWorld > 0) {
-//                    val nearEntities = world.getNonSpectatingEntities(
-//                        LivingEntity::class.java,
-//                        boundingBox.expand(1.0)
-//                    )
-//
-//                    if (!nearEntities.isEmpty()) {
-//                        for (nearEntity in nearEntities) {
-//                            if (nearEntity != null && nearEntity.getRandom().nextInt(3) == 0) {
-//                                nearEntity.setOnFireFor(fireTime)
-//                            }
-//                            nearEntity?.addStatusEffect(
-//                                StatusEffectInstance(
-//                                    StatusEffects.WEAKNESS,
-//                                    80,
-//                                    groundedWorld - 1
-//                                )
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                if (entity1 is LivingEntity) {
-//                    EnchantmentHelper.onUserDamaged(entity, entity1)
-//                    EnchantmentHelper.onTargetDamaged(entity1, entity)
-//                }
-//
-//                onHit(entity)
-//
-//                if (itemStack.item is BlockItem) {
-//                    val blockItem = Block.getBlockFromItem(itemStack.item)
-//                    when (blockItem) {
-//                        is SandBlock -> {
-//                            if (entity.getRandom().nextInt(10) == 0) entity.addStatusEffect(
-//                                StatusEffectInstance(
-//                                    StatusEffects.BLINDNESS,
-//                                    60,
-//                                    3
-//                                )
-//                            )
-//                        }
-//
-//                        is TorchBlock -> {
-//                            if (entity.getRandom().nextInt(5) == 0) entity.setOnFireFor(1)
-//                        }
-//
-//                        is AnvilBlock -> {
-//                            entity.addStatusEffect(StatusEffectInstance(StatusEffects.NAUSEA, 60, 3))
-//                            entity.addStatusEffect(StatusEffectInstance(StatusEffects.SLOWNESS, 60, 5))
-//                        }
-//
-//                        else -> {}
-//                    }
-//                } else {
-//                    val itemThrown = itemStack.item
-//                    if (itemThrown == Items.BLAZE_ROD || itemThrown == Items.BLAZE_POWDER) {
-//                        entity.setOnFireFor(1)
-//                    }
-//                }
-//            }
-//        }
-//
-//        setVelocity(velocity.multiply(-0.01, -0.1, -0.01))
-//
-//        playSound(soundEvent, 1.0f, 1.0f)
-//    }
 
     override fun onEntityHit(entityHitResult: EntityHitResult) {
         val entity = entityHitResult.entity
@@ -402,8 +287,8 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         dealtDamage = true
 
         if (entity is LivingEntity) {
-            damage += if (CommonThrowEntity.Companion.enchantmentsConfig.enableThrow) EnchantmentHelper.getLevel(EnchantmentHandler.THROW, itemStack) else 0
-            damage += EnchantmentHelper.getAttackDamage(itemStack, entity.group)
+            damage += if (enchantmentsConfig.enableThrow) EnchantmentHelper.getLevel(EnchantmentHandler.THROW, localStack) else 0
+            damage += EnchantmentHelper.getAttackDamage(localStack, entity.group)
 
             if (entity.damage(damageSource, damage)) {
                 when(entity.type) {
@@ -446,12 +331,12 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         dealtDamage = compound.getBoolean("DealtDamage")
 
         if (compound.contains("Stack", 10)) {
-            itemStack = ItemStack.fromNbt(compound.getCompound("Stack"))
+            localStack = ItemStack.fromNbt(compound.getCompound("Stack"))
         }
 
         dataTracker.set<Byte?>(
             LOYALTY_LEVEL, Companion.getReturnOrLoyaltyEnchantment(
-                itemStack
+                localStack
             ).toByte()
         )
     }
@@ -492,7 +377,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
             if (state.block != Blocks.BEDROCK && shouldDestroy()) {
                 val canBreak = ConfigRegistry.COMMON.get().interactions.canBreakBlocks
 
-                val canHarvest = itemStack.isSuitableFor(state) && canBreak
+                val canHarvest = localStack.isSuitableFor(state) && canBreak
                 if (canHarvest) {
                     if (!world.isClient && lastState == null) {
                         destroyedBlock = stickBlockPos
@@ -511,8 +396,8 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
         setPos(x - vec3d1.x, y - vec3d1.y, z - vec3d1.z)
 
         var event = SoundEvents.ITEM_TRIDENT_HIT_GROUND
-        if (itemStack.item is BlockItem) {
-            val block = Block.getBlockFromItem(itemStack.item)
+        if (localStack.item is BlockItem) {
+            val block = Block.getBlockFromItem(localStack.item)
             event = block.defaultState.soundGroup.hitSound
         }
 
@@ -529,7 +414,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     }
 
     fun applyBounce() {
-        if (inGround && itemStack.item is BlockItem) {
+        if (inGround && localStack.item is BlockItem) {
             if (!(abs(velocity.x) < 0.05 && abs(velocity.z) < 0.05)) {
                 val vec3 = velocity.multiply(0.9)
                 val landingPos = steppingPos
@@ -554,7 +439,7 @@ class WeaponThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
     }
 
     override fun getStack(): ItemStack? {
-        return itemStack
+        return localStack
     }
 
     override fun createSpawnPacket(): Packet<ClientPlayPacketListener?>? {
