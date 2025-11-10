@@ -303,7 +303,7 @@ open class CommonThrowEntity : PersistentProjectileEntity, FlyingItemEntity {
                     EnchantmentHelper.onTargetDamaged(owner as LivingEntity, entity)
                 }
 
-                this.onHit(entity)
+                onHit(entity)
                 handleItemType(this, entity)
             }
         }
